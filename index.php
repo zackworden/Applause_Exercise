@@ -91,7 +91,26 @@ class ResultsInterpretter
 	}
 	function Parse_BugReportData( $resultArray, DataStore $dataStore )
 	{
+		$allBugReports = [];
+		$thisBug = '';
+		$thisDevice = '';
+		$thisTester = '';
 
+		foreach ( $resultArray as $thisResult )
+		{
+			$thisTester = $dataStore->GetTesterById( $thisResult[1] );
+			$thisDevice = $dataStore->GetDeviceById( $thisResult[2] );
+
+			if ( 
+				!empty( $thisTester ) &&
+				!empty( $thisDevice )
+			)
+			{
+				array_push( $allBugReports, new BugReport($thisResult[1], $thisDevice, $thisTester ) );
+			}
+		}
+
+		return $allBugReports;
 	}
 	function Parse_TesterDeviceRelationshipData( $resultArray, DataStore $dataStore )
 	{
@@ -141,15 +160,10 @@ class Tester
 
 		return $this->devices;
 	}
-	function attachDevices( $allDevices )
-	{
-		$this->devices = $allDevices;
-	}
 	function Get_Id()
 	{
 		return $this->testerId;
 	}
-
 }
 class Device
 {
@@ -208,73 +222,13 @@ $interpretter = new ResultsInterpretter();
 $dataStore->SetDevicesArray( $interpretter->Parse_DeviceData( $allDevices ) );
 $dataStore->SetTestersArray( $interpretter->Parse_TesterData( $allTesters ) );
 
-
-
-//var_dump( $dataStore->allTesters );
-
 $interpretter->Parse_TesterDeviceRelationshipData( $allTesterDeviceRelationships, $dataStore );
-//var_dump( $dataStore->allTesters[0] );
+$dataStore->SetBugReportsArray( $interpretter->Parse_BugReportData( $allBugReports, $dataStore ) );
 
-//var_dump( $dataStore->GetTesterById( '3' ) );
+
+var_dump( 
+	$interpretter->Parse_BugReportData( $allBugReports, $dataStore )
+);
+var_dump( $dataStore->allBugReports );
 exit;
 
-//$dataStore->SetTestersArray( $interpretter->Parse_BugReportData( $allBugReports ) );
-//$dataStore->SetTestersArray( $interpretter->Parse_TesterDeviceRelationshipData( $allTesterDeviceRelationships ) );
-
-
-
-//$dataStore->SetDevicesArray( $dataGrabber->Fetch_DeviceData() );
-//$dataStore->SetTestersArray( $dataGrabber->Fetch_TesterData() );
-////$dataStore->SetTestersArray( $dataGrabber->Fetch_TesterData() );
-
-
-
-
-
-
-
-
-/*
-$dataStore->SetTestersArray( $dataGrabber->Fetch_TesterData() );
-
-$allTesterDeviceRelationships = [];
-$allTesterDeviceRelationships = $dataGrabber->Fetch_TesterDeviceData();
-
-var_dump($allTesterDeviceRelationships);
-*/
-
-
-
-
-
-
-
-
-//$dataStore->SetBugReportsArray( $dataGrabber->Fetch_BugReportData() );
-
-/*
-$dataStore->SetDevicesArray();
-
-$allDevices = $dataGrabber->Fetch_DeviceData();
-$allTesters = $dataGrabber->Fetch_TesterData();
-$allBugReports = $dataGrabber->Fetch_BugReportData();
-$allTesterDeviceRelationships = $dataGrabber->Fetch_TesterDeviceData();
-*/
-
-//var_dump(
-//	$dataStore->allDevices
-//);
-//var_dump(
-//	$dataStore->allTesters
-//);
-//var_dump(
-//$allTesters
-//);
-//var_dump(
-//$allBugReports
-//);
-//var_dump(
-//$allTesterDeviceRelationships
-//);
-
-// test open CSV
