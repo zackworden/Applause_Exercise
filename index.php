@@ -20,86 +20,102 @@ class DataStore
 		$this->allBugReports = $bugReportArray;
 	}
 
-	function GetDeviceById ( int $deviceId )
+	function GetDeviceById ( $deviceId )
 	{
-		foreach ( $thisAllDevices as $thisDevice )
+		foreach ( $this->allDevices as $thisDevice )
 		{
-			if ( $thisDevice->deviceId() === $deviceId )
+			if ( $thisDevice->Get_Id() == $deviceId )
 			{
 				return $thisDevice;
 				break;
 			}
 		}
+
+		return NULL;
+	}
+	function GetTesterById ( $testerId )
+	{
+		foreach ( $this->allTesters as $thisTester )
+		{
+			if ( $thisTester->Get_Id() == $testerId )
+			{
+				return $thisTester;
+				break;
+			}
+		}
+
+		return NULL;
 	}
 }
 
 class DataFetcher 
 {
-	function Fetch_TesterData()
+	function Fetch_CSVData( $path )
 	{
 		$resultArray = [];
-		$contentsAsString = file_get_contents( 'data/testers.csv' );
+		$contentsAsString = file_get_contents( $path );
 		$allRows = str_getcsv( $contentsAsString, "\n", ','  );
 
 		foreach ( $allRows as $thisRow )
 		{
 			$thisRow = str_getcsv( $thisRow, ',' );
-			array_push( $resultArray, new Tester( $thisRow[0], $thisRow[1], $thisRow[2], $thisRow[3], $thisRow[4] ) );
+			array_push( $resultArray, $thisRow );
 		}
 
 		return $resultArray;
-	}
-	function Fetch_DeviceData()
-	{
-		$resultArray = [];
-		$contentsAsString = file_get_contents( 'data/devices.csv' );
-		$allRows = str_getcsv( $contentsAsString, "\n", ','  );
-
-		foreach ( $allRows as $thisRow )
-		{
-			$thisRow = str_getcsv( $thisRow, ',' );
-			array_push( $resultArray, new Device( $thisRow[0], $thisRow[1] ) );
-		}
-
-		return $resultArray;
-	}
-	function Fetch_BugReportData()
-	{
-		$resultArray = [];
-		$contentsAsString = file_get_contents( 'data/bugs.csv' );
-		$allRows = str_getcsv( $contentsAsString, "\n", ','  );
-
-		foreach ( $allRows as $thisRow )
-		{
-			$thisRow = str_getcsv( $thisRow, ',' );
-			//array_push( $resultArray, new Device( $thisRow[0], $thisRow[1] ) );
-		}
-
-		return $resultArray;
-	}
-	function Fetch_TesterDeviceData()
-	{
-		$resultArray = [];
-		$contentsAsString = file_get_contents( 'data/tester_device.csv' );
-		$allRows = str_getcsv( $contentsAsString, "\n", ','  );
-
-		foreach ( $allRows as $thisRow )
-		{
-			$thisRow = str_getcsv( $thisRow, ',' );
-			array_push( $resultArray, new Device( $thisRow[0], $thisRow[1] ) );
-		}
-
-		var_dump( $allRows );
-		var_dump( $allRows );
-		return $resultArray;
-	}
-
-	function Test()
-	{
-
 	}
 }
+class ResultsInterpretter
+{
+	function Parse_DeviceData( $resultArray )
+	{
+		$instantiatedResults = [];
 
+		foreach ( $resultArray as $thisRow )
+		{
+			array_push( $instantiatedResults, new Device( $thisRow[0], $thisRow[1] ) );
+		}
+
+		return $instantiatedResults;
+	}
+	function Parse_TesterData( $resultArray )
+	{
+		$instantiatedResults = [];
+
+		foreach ( $resultArray as $thisRow )
+		{
+			array_push( $instantiatedResults, new Tester( $thisRow[0], $thisRow[1], $thisRow[2], $thisRow[3], $thisRow[4] ) );
+		}
+
+		return $instantiatedResults;
+	}
+	function Parse_BugReportData( $resultArray, DataStore $dataStore )
+	{
+
+	}
+	function Parse_TesterDeviceRelationshipData( $resultArray, DataStore $dataStore )
+	{
+		$thisTester = '';
+		$thisDevice = '';
+		$thisTestersDevices = [];
+
+		foreach ( $resultArray as $thisResult )
+		{
+			$thisTester = $dataStore->GetTesterById( $thisResult[0] );
+
+			if ( !empty( $thisTester ) )
+			{
+				$thisDevice = $dataStore->GetDeviceById( $thisResult[1] );
+
+				if ( !empty($thisDevice) )
+				{
+					$thisTester->addDevice($thisDevice);
+				}
+			}
+		}
+	}
+
+}
 
 
 class Tester
@@ -119,10 +135,21 @@ class Tester
 		$this->country = $country;
 		$this->lastLogin = $lastLogin;
 	}
+	function addDevice( Device $device )
+	{
+		array_push( $this->devices, $device );
+
+		return $this->devices;
+	}
 	function attachDevices( $allDevices )
 	{
 		$this->devices = $allDevices;
 	}
+	function Get_Id()
+	{
+		return $this->testerId;
+	}
+
 }
 class Device
 {
@@ -159,18 +186,69 @@ class BugReport
 
 
 $dataGrabber = new DataFetcher();
+
+$allTesters = $dataGrabber->Fetch_CSVData('data/testers.csv');
+unset($allTesters[0]); 
+
+$allDevices = $dataGrabber->Fetch_CSVData('data/devices.csv');
+unset($allDevices[0]); 
+
+$allBugReports = $dataGrabber->Fetch_CSVData('data/bugs.csv');
+unset($allBugReports[0]); 
+
+$allTesterDeviceRelationships = $dataGrabber->Fetch_CSVData('data/tester_device.csv');
+unset($allTesterDeviceRelationships[0]); 
+
+
 $dataStore = new DataStore();
-$dataStore->SetDevicesArray( $dataGrabber->Fetch_DeviceData() );
-$dataStore->SetTestersArray( $dataGrabber->Fetch_TesterData() );
+
+$interpretter = new ResultsInterpretter();
+
+
+$dataStore->SetDevicesArray( $interpretter->Parse_DeviceData( $allDevices ) );
+$dataStore->SetTestersArray( $interpretter->Parse_TesterData( $allTesters ) );
 
 
 
+//var_dump( $dataStore->allTesters );
+
+$interpretter->Parse_TesterDeviceRelationshipData( $allTesterDeviceRelationships, $dataStore );
+//var_dump( $dataStore->allTesters[0] );
+
+//var_dump( $dataStore->GetTesterById( '3' ) );
+exit;
+
+//$dataStore->SetTestersArray( $interpretter->Parse_BugReportData( $allBugReports ) );
+//$dataStore->SetTestersArray( $interpretter->Parse_TesterDeviceRelationshipData( $allTesterDeviceRelationships ) );
+
+
+
+//$dataStore->SetDevicesArray( $dataGrabber->Fetch_DeviceData() );
+//$dataStore->SetTestersArray( $dataGrabber->Fetch_TesterData() );
+////$dataStore->SetTestersArray( $dataGrabber->Fetch_TesterData() );
+
+
+
+
+
+
+
+
+/*
 $dataStore->SetTestersArray( $dataGrabber->Fetch_TesterData() );
 
 $allTesterDeviceRelationships = [];
 $allTesterDeviceRelationships = $dataGrabber->Fetch_TesterDeviceData();
 
 var_dump($allTesterDeviceRelationships);
+*/
+
+
+
+
+
+
+
 
 //$dataStore->SetBugReportsArray( $dataGrabber->Fetch_BugReportData() );
 
@@ -200,8 +278,3 @@ $allTesterDeviceRelationships = $dataGrabber->Fetch_TesterDeviceData();
 //);
 
 // test open CSV
-
-
-
-$testData = $dataGrabber->Test();
-
