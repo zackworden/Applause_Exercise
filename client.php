@@ -179,30 +179,35 @@
 
 			}
 		</script>
+		<link rel="stylesheet" href="styles/style.css" />
 	</head>
 	<body>
-		<header>
-			<div>
-				<label>
-					Country
-				</label>
-				<select name="country" id="country_select" multiple="multiple">
-					<option value="all">All Countries</option>
-				</select>
+		<header class="ui_header">
+			<div class="header_options">
+				<div class="header_item header_country">
+					<label>
+						Country
+					</label>
+					<select name="country" id="country_select" multiple="multiple" size="6">
+						<option value="all">All Countries</option>
+					</select>
+				</div>
+				<div class="header_item header_device">
+					<label>
+						Device
+					</label>
+					<select name="device" id="device_select" multiple="multiple" size="6">
+						<option value="all">All Devices</option>
+					</select>
+				</div>
 			</div>
-			<div>
-				<label>
-					Device
-				</label>
-				<select name="device" id="device_select" multiple="multiple">
-					<option value="all">All Devices</option>
-				</select>
-			</div>
-			<div>
-				<button onclick="GetAllResults();">Get Results</button>
+			<div class="header_actions">
+				<div class="header_item header_getResults">
+					<button onclick="GetAllResults();">Get Results</button>
+				</div>
 			</div>
 		</header>
-		<main id="resultsContainer">
+		<main id="resultsContainer" class="resultsContainer">
 		</main>
 	</body>
 </html>

@@ -1,0 +1,32 @@
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+.header_options,
+.header_actions {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: nowrap;
+}
+.header_options select {
+	padding:.25rem .5rem;
+	min-width: 10rem;
+}
+
+.header_item {
+	margin: 1rem 2rem;
+	flex: 0 0 auto;
+}
+.header_item label {
+	display: block;
+}
+.header_actions button {
+	padding: .5rem 2rem;
+}
+.resultsContainer {
+	max-width: 80rem;
+	margin: 0 auto;
+}
