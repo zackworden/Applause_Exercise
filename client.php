@@ -5,45 +5,66 @@
 
 		</style>
 		<script type="text/javascript">
-			function SendRequest( requestArg, callback )
-			{
-				var req = new XMLHttpRequest();
-				req.onreadystatechange = RequestListener.bind( req, req, callback ) ;
-				req.open('GET', 'index.php?getall=' + requestArg);
-				req.send();
-			}
+
+			var requestMediator = {
+				sendRequest : function ( requestType, requestArg, callback ) {
+					var req = new XMLHttpRequest();
+					req.onreadystatechange = requestMediator.handleRequestState.bind( req, req, callback ) ;
+					req.open('GET', 'index.php?' + requestType + '=' + requestArg);
+					req.send();
+				},
+				handleRequestState : function ( request, callback ) {
+					if ( request.readyState == 4 )
+					{
+						callback( request.responseText );
+					}
+				}
+			};
+
+			var markupFactory = {
+				buildCountryOption : function( countryObject ) {
+					var elem = document.createElement('option');
+					elem.innerText = countryObject;
+					return elem;
+				},
+				buildDeviceOption : function( deviceObject ) {
+					var elem = document.createElement('option');
+					elem.innerText = deviceObject;
+					return elem;
+				},
+				buildResult : function( resultObject ) {
+					var elem = document.createElement('div');
+					elem.innerText = resultObject;//'test result';
+
+					return elem;
+				}
+			};
+
+
 			window.addEventListener('DOMContentLoaded', function(){
 				
 				Populate_CountryField();
 				Populate_DeviceField();
 			});
 
-			function RequestListener( request, callback ) {
-				if ( request.readyState == 4 )
-				{
-					callback( request.responseText );
-				}
-			}
+
 			function Populate_CountryField()
 			{
 				var selectElem = document.querySelector('#country_select');
 
-				SendRequest('country', HandleResponse.bind( this ) );
+				requestMediator.sendRequest('getall', 'country', HandleResponse.bind( this ) );
 
 				function HandleResponse( responseText )
 				{
 					var allCountries = JSON.parse( responseText );
 					allCountries.sort();
 					var docFrag = document.createDocumentFragment();
-					var thisOptionElem;
 					var counter = 0;
 					var numOf = allCountries.length;
 
 					for ( counter = 0; counter < numOf; counter ++ )
 					{
-						thisOptionElem = document.createElement('option');
-						thisOptionElem.innerText = allCountries[counter];
-						docFrag.appendChild( thisOptionElem );
+						docFrag.appendChild( markupFactory.buildCountryOption( allCountries[counter] ) );
 					}
 
 					selectElem.appendChild( docFrag );
@@ -53,44 +74,50 @@
 			{
 				var selectElem = document.querySelector('#device_select');
 
-				SendRequest('device', HandleResponse.bind( this ) );
+				requestMediator.sendRequest('getall', 'device', HandleResponse.bind( this ) );
 
 				function HandleResponse( responseText )
 				{
 					var allDevices = JSON.parse( responseText );
 					allDevices.sort();
 					var docFrag = document.createDocumentFragment();
-					var thisOptionElem;
 					var counter = 0;
 					var numOf = allDevices.length;
 
 					for ( counter = 0; counter < numOf; counter ++ )
 					{
-						thisOptionElem = document.createElement('option');
-						thisOptionElem.innerText = allDevices[counter];
-						docFrag.appendChild( thisOptionElem );
+						docFrag.appendChild( markupFactory.buildDeviceOption( allDevices[counter] ) );
 					}
 
 					selectElem.appendChild( docFrag );
 				}
 			}
-			function Populate_Results()
-			{
 
+			function Render_Results( response )
+			{
+				var elem = document.querySelector( '#resultsContainer' );
+				var counter = 0;
+				var numOf = 0;
+				var docFrag = document.createDocumentFragment();
+
+				response = JSON.parse( response );
+				numOf = response.length;
+
+				if ( typeof elem != 'undefined' )
+				{
+					elem.innerHTML = '';
+					
+					for ( counter = 0; counter < numOf; counter ++ )
+					{
+						docFrag.appendChild( markupFactory.buildResult( response[counter] ) );
+					}
+
+					elem.appendChild( docFrag );
+				}
 			}
 
-			function Get_Results( requestArgs, callback )
-			{
-				var req = new XMLHttpRequest();
-				//req.onreadystatechange = RequestListener.bind( req, req, callback ) ;
-				req.open('POST', 'index.php');
-				req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-				req.send( JSON.stringify(requestArgs) );
 
 
-
-				console.log(98);
-			}
 
 			function GetAllResults()
 			{
@@ -145,13 +172,16 @@
 					'devices'	: allDevices
 				};
 
-				Get_Results( requestBody, Populate_Results );
-				//console.log( requestBody );
+				requestBody = JSON.stringify( requestBody );
+
+
+				requestMediator.sendRequest('getreport', requestBody, Render_Results.bind( this ) );
+
 			}
 		</script>
 	</head>
 	<body>
-		<div>
+		<header>
 			<div>
 				<label>
 					Country
@@ -171,6 +201,8 @@
 			<div>
 				<button onclick="GetAllResults();">Get Results</button>
 			</div>
-		</div>
+		</header>
+		<main id="resultsContainer">
+		</main>
 	</body>
 </html>

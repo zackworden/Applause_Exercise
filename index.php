@@ -66,14 +66,20 @@ if ( !empty( $_GET['getall'] ) )
 		break;
 	}
 }
-else if ( !empty( $_POST['getreport'] ) )
+else if ( !empty( $_REQUEST['getreport'] ) )
 {
+	/*
 	$request = json_decode( $_POST['getreport'] );
 
 	var_dump( $request );
 	exit;
+	*/
+	echo json_encode( array( 'cool thing 1', 'cool thing 2' ) );
 }
-
+else
+{
+	echo json_encode('unkknowable');
+}
 
 
 
