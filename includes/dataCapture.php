@@ -78,6 +78,44 @@ class DataStore
 
 		return $uniqueDevices;
 	}
+	function GetBugReportsWithCountries( $arrayOfCountries )
+	{
+		$results = array();
+
+		foreach ( $this->allBugReports as $thisBugReport )
+		{
+			$thisCountry = $thisBugReport->Get_TesterCountry();
+
+			if ( in_array( $thisCountry, $arrayOfCountries ) )
+			{
+				if ( in_array( $thisCountry, $results ) == FALSE )
+				{
+					array_push( $results, $thisBugReport );
+				}
+			}
+		}
+
+		return $results;
+	}
+	function GetBugReportsWithDevices( $arrayOfDevices )
+	{
+		$results = array();
+
+		foreach ( $this->allBugReports as $thisBugReport )
+		{
+			$thisDevice = $thisBugReport->Get_TesterDevice()->Get_Description();
+
+			if ( in_array( $thisDevice, $arrayOfDevices ) )
+			{
+				if ( in_array( $thisDevice, $results ) == FALSE )
+				{
+					array_push( $results, $thisBugReport );
+				}
+			}
+		}
+
+		return $results;
+	}
 }
 
 class DataFetcher 
@@ -233,6 +271,14 @@ class BugReport
 		$this->bugId = $bugId;
 		$this->device = $device;
 		$this->tester = $tester;
+	}
+	function Get_TesterCountry()
+	{
+		return $this->tester->Get_Country();
+	}
+	function Get_TesterDevice()
+	{
+		return $this->device;
 	}
 }
 

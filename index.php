@@ -41,9 +41,24 @@ $dataStore->SetBugReportsArray( $interpretter->Parse_BugReportData( $allBugRepor
 
 
 
+/*
+var_dump( 
+	$dataStore->GetBugReportsWithCountries( 
+		//$dataStore->GetAllUniqueCountries() 
+		['JP','US']
+	)
+);
+*/
 
 
+var_dump( 
+	$dataStore->GetBugReportsWithDevices( 
+		//$dataStore->GetAllUniqueDevices() 
+		['Galaxy S3']
+	)
+);
 
+exit;
 
 
 
@@ -74,7 +89,9 @@ else if ( !empty( $_REQUEST['getreport'] ) )
 	var_dump( $request );
 	exit;
 	*/
-	echo json_encode( array( 'cool thing 1', 'cool thing 2' ) );
+	//echo json_encode( array( 'cool thing 1', 'cool thing 2' ) );
+	$request = json_decode( $_REQUEST['getreport'] )
+	var_dump( $request );
 }
 else
 {
