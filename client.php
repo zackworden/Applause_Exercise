@@ -34,6 +34,7 @@
 				},
 				buildResult : function( resultObject ) {
 					var elem = document.createElement('div');
+					elem.classList.add('resultItem');
 					elem.innerText = resultObject;//'test result';
 
 					return elem;
