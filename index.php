@@ -50,7 +50,7 @@ var_dump(
 );
 */
 
-
+/*
 var_dump( 
 	$dataStore->GetBugReportsWithDevices( 
 		//$dataStore->GetAllUniqueDevices() 
@@ -59,12 +59,13 @@ var_dump(
 );
 
 exit;
-
+*/
 
 
 
 
 // UI
+$_REQUEST['getreport'] = '{"countries":["all"],"devices":["all"]}';
 
 if ( !empty( $_GET['getall'] ) )
 {
@@ -83,15 +84,48 @@ if ( !empty( $_GET['getall'] ) )
 }
 else if ( !empty( $_REQUEST['getreport'] ) )
 {
-	/*
-	$request = json_decode( $_POST['getreport'] );
+	$request = json_decode( $_REQUEST['getreport'] );
 
-	var_dump( $request );
-	exit;
-	*/
-	//echo json_encode( array( 'cool thing 1', 'cool thing 2' ) );
-	$request = json_decode( $_REQUEST['getreport'] )
-	var_dump( $request );
+	if ( in_array( 'all', $request->countries )  )
+	{
+		$countries = $dataStore->GetAllUniqueCountries();
+	}
+	else if ( !empty( $request->countries ) )
+	{
+		$countries = $request->countries;
+	}
+
+	if ( in_array( 'all', $request->devices ) )
+	{
+		$devices = $dataStore->GetAllUniqueDevices();
+	}
+	else if ( !empty( $request->devices ) )
+	{
+		$devices = $request->devices;
+	}
+
+	$totalResults = array();
+	$countryResults = array();
+	$deviceResults = array();
+
+	$countryResults = $dataStore->GetBugReportsWithCountries( $countries );
+	$deviceResults = $dataStore->GetBugReportsWithDevices( $devices );
+
+	foreach ( $countryResults as $thisResult )
+	{
+		array_push( 
+			$totalResults, $thisResult->Jsonify()
+		);
+	}
+
+	foreach ( $deviceResults as $thisResult )
+	{
+		array_push( 
+			$totalResults, $thisResult->Jsonify()
+		);
+	}
+
+	echo json_encode( $totalResults );
 }
 else
 {

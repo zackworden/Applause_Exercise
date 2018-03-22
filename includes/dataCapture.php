@@ -209,12 +209,12 @@ class ResultsInterpretter
 
 class Tester
 {
-	protected $testerId;
-	protected $firstName;
-	protected $lastName;
-	protected $country;
-	protected $lastLogin;
-	protected $devices = [];
+	public $testerId;
+	public $firstName;
+	public $lastName;
+	public $country;
+	public $lastLogin;
+	public $devices = [];
 
 	function __construct( $testerId, $firstName, $lastName, $country, $lastLogin )
 	{
@@ -238,12 +238,16 @@ class Tester
 	{
 		return $this->country;
 	}
+	function Jsonify()
+	{
+		return json_encode( $this );
+	}
 }
 
 class Device
 {
-	protected $deviceId;
-	protected $description;
+	public $deviceId;
+	public $description;
 
 	function __construct( $deviceId, $description )
 	{
@@ -258,13 +262,17 @@ class Device
 	{
 		return $this->description;
 	}
+	function Jsonify()
+	{
+		return json_encode( $this );
+	}
 }
 
 class BugReport
 {
-	protected $bugId;
-	protected $device;
-	protected $tester;
+	public $bugId;
+	public $device;
+	public $tester;
 
 	function __construct( $bugId, $device, $tester )
 	{
@@ -279,6 +287,10 @@ class BugReport
 	function Get_TesterDevice()
 	{
 		return $this->device;
+	}
+	function Jsonify()
+	{
+		return json_encode( $this );
 	}
 }
 
