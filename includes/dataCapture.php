@@ -1,5 +1,6 @@
 <?php
 
+// stores and disperses all data (bugs, testers, etc)
 class DataStore
 {
 	public $allDevices = [];
@@ -118,6 +119,7 @@ class DataStore
 	}
 }
 
+// reads CSV file into memory
 class DataFetcher 
 {
 	function Fetch_CSVData( $path )
@@ -136,6 +138,7 @@ class DataFetcher
 	}
 }
 
+// each CSV has a slightly different structure, so we parse the resulting data slightly different depending on which file we're reading
 class ResultsInterpretter
 {
 	function Parse_DeviceData( $resultArray )
@@ -204,9 +207,9 @@ class ResultsInterpretter
 			}
 		}
 	}
-
 }
 
+// a person that has / is able to report bugs. Ultimately fed from /data/testers.csv
 class Tester
 {
 	public $testerId;
@@ -244,6 +247,7 @@ class Tester
 	}
 }
 
+// a device that can be associated with a person or bug report. Fed from /data/devices.csv
 class Device
 {
 	public $deviceId;
@@ -268,6 +272,7 @@ class Device
 	}
 }
 
+// a recorded by, with an association between a Tester and a Device
 class BugReport
 {
 	public $bugId;
@@ -293,7 +298,3 @@ class BugReport
 		return json_encode( $this );
 	}
 }
-
-
-
-

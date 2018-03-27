@@ -31,6 +31,15 @@ body {
 	margin: 0 auto;
 }
 
+.resultsContainer table {
+	width: 50rem;
+	text-align:left;
+}
+.resultsContainer th {
+	padding-bottom: .25rem;
+	border-bottom:1px solid #999;
+}
+
 .resultItem {
 	margin: .5rem 0;
 	padding: 1rem 0;
