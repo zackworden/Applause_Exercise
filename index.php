@@ -37,35 +37,8 @@ $dataStore->SetBugReportsArray( $interpretter->Parse_BugReportData( $allBugRepor
 
 
 
-
-
-
-
-/*
-var_dump( 
-	$dataStore->GetBugReportsWithCountries( 
-		//$dataStore->GetAllUniqueCountries() 
-		['JP','US']
-	)
-);
-*/
-
-/*
-var_dump( 
-	$dataStore->GetBugReportsWithDevices( 
-		//$dataStore->GetAllUniqueDevices() 
-		['Galaxy S3']
-	)
-);
-
-exit;
-*/
-
-
-
-
 // UI
-$_REQUEST['getreport'] = '{"countries":["all"],"devices":["all"]}';
+//$_REQUEST['getreport'] = '{"countries":["all"],"devices":["all"]}';
 
 if ( !empty( $_GET['getall'] ) )
 {
@@ -114,18 +87,38 @@ else if ( !empty( $_REQUEST['getreport'] ) )
 	foreach ( $countryResults as $thisResult )
 	{
 		array_push( 
-			$totalResults, $thisResult->Jsonify()
+			$totalResults, $thisResult
 		);
 	}
 
 	foreach ( $deviceResults as $thisResult )
 	{
 		array_push( 
-			$totalResults, $thisResult->Jsonify()
+			$totalResults, $thisResult
 		);
 	}
 
-	echo json_encode( $totalResults );
+	// aggregate the results by user
+
+	$aggregatedResults = array();
+
+	foreach ( $totalResults as $thisResult )
+	{
+		if ( empty( $aggregatedResults[ $thisResult->tester->Get_Id() ] ) )
+		{
+			$aggregatedResults[ $thisResult->tester->Get_Id() ]['count'] = 1;
+			$aggregatedResults[ $thisResult->tester->Get_Id() ]['tester'] = $thisResult->tester;
+		}
+		else
+		{
+			$aggregatedResults[ $thisResult->tester->Get_Id() ]['count'] ++;
+		}
+		
+	}
+
+	arsort( $aggregatedResults );
+
+	echo json_encode( $aggregatedResults );
 }
 else
 {
@@ -133,15 +126,3 @@ else
 }
 
 
-
-
-
-
-
-/*
-var_dump( 
-	$interpretter->Parse_BugReportData( $allBugReports, $dataStore )
-);
-var_dump( $dataStore->allBugReports );
-exit;
-*/

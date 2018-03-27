@@ -32,10 +32,54 @@
 					elem.innerText = deviceObject;
 					return elem;
 				},
+				getResultTable : function () {
+					var tableElem = document.createElement('table');
+					var theadElem = document.createElement('thead');
+					var rowElem = document.createElement('tr');
+					var cellElem;
+
+					// experience cell
+					cellElem = document.createElement('th');
+					cellElem.innerText = 'Experience (in bugs reported)';
+					rowElem.appendChild(cellElem);
+
+					// tester name
+					cellElem = document.createElement('th');
+					cellElem.innerText = 'Tester Name (last, first)';
+					rowElem.appendChild(cellElem);
+
+					theadElem.appendChild( rowElem );
+					tableElem.appendChild( theadElem );
+
+					return tableElem;
+				},
 				buildResult : function( resultObject ) {
-					var elem = document.createElement('div');
-					elem.classList.add('resultItem');
-					elem.innerText = resultObject;//'test result';
+					var rowElem = document.createElement('tr');
+					var cellElem;
+					rowElem.classList.add('resultItem');
+
+					// experience cell
+					cellElem = document.createElement('td');
+					cellElem.innerText = resultObject.count;
+					rowElem.appendChild( cellElem );
+
+					// tester name
+					cellElem = document.createElement('td');
+					cellElem.innerText = resultObject.tester.lastName + ', ' + resultObject.tester.firstName;
+					rowElem.appendChild( cellElem );
+					
+					return rowElem;
+				},
+				buildResultsHeader : function( resultObject ) {
+					var elem = document.createElement('header');
+					var totalBugs = 0;
+
+					for ( obj in resultObject )
+					{
+						totalBugs += resultObject[obj].count;
+					}
+
+					elem.innerText = 'Total Bugs: ' + totalBugs;
 
 					return elem;
 				}
@@ -100,18 +144,33 @@
 				var counter = 0;
 				var numOf = 0;
 				var docFrag = document.createDocumentFragment();
+				var divElem;
+				var tableElem;
+				var rowElem;
+				var cellElem;
 
 				response = JSON.parse( response );
-				numOf = response.length;
-
+				
 				if ( typeof elem != 'undefined' )
 				{
 					elem.innerHTML = '';
-					
-					for ( counter = 0; counter < numOf; counter ++ )
+
+					// total results section
+					//divElem = document.createElement('div')
+					//divElem.innerText = 'Total Results: ' + response.length;
+					docFrag.appendChild( markupFactory.buildResultsHeader( response ) );
+
+					tableElem = markupFactory.getResultTable();
+
+					// bug id
+					cellElem = document.createElement('th');
+
+					for ( testerId in response )
 					{
-						docFrag.appendChild( markupFactory.buildResult( response[counter] ) );
+						tableElem.appendChild( markupFactory.buildResult( response[ testerId ] ) );
 					}
+
+					docFrag.appendChild( tableElem );
 
 					elem.appendChild( docFrag );
 				}
