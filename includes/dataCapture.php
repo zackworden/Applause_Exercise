@@ -134,6 +134,9 @@ class DataFetcher
 			array_push( $resultArray, $thisRow );
 		}
 
+		// row 0 is the CSV header, so remove
+		unset( $resultArray[0] );
+
 		return $resultArray;
 	}
 }

@@ -86,17 +86,18 @@ var markupFactory = {
 		var elem = document.createElement('header');
 		var totalBugs = 0;
 
+		// total bugs
 		for ( obj in resultObject )
 		{
 			totalBugs += resultObject[obj].count;
 		}
 
-		elem.innerText = 'Total Bugs: ' + totalBugs;
+		// total bug reports found
+		elem.appendChild( document.createTextNode('Total Bugs: ' + totalBugs ) );
 
 		return elem;
 	}
 };
-
 
 // manage all form behavior, including field population and form submission
 var formManager = {
